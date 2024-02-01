@@ -37,7 +37,7 @@ export function createScene(renderer: WebGLRenderer) {
     // Create controller
     const controller = renderer.xr.getController(0);
     // call handleSelect on event listener select
-    controller.addEventListener('select', () => handleSelect(planeMarker, deskModel, scene));
+    controller.addEventListener('select', () => handleSelect(planeMarker, deskModel, chairModel, scene));
     scene.add(controller);
 
     const ambientLight = new AmbientLight(0xffffff);
@@ -74,14 +74,18 @@ function handleFrame(frame: XRFrame | undefined, renderer: WebGLRenderer, planeM
   }
 }
 
-function handleSelect(planeMarker: Object3D, deskModel: Object3D, scene: Scene) {
+function handleSelect(planeMarker: Object3D, deskModel: Object3D, chairModel: Object3D, scene: Scene) {
   if (planeMarker.visible) {
     const renderedDesk = scene.getObjectByName('desk');
-    if (renderedDesk) {
-      scene.remove(renderedDesk);
+    const renderedChair = scene.getObjectByName('chair');
+    if (!renderedDesk) {
+      deskModel.position.setFromMatrixPosition(planeMarker.matrix);
+      deskModel.visible = true;
+      scene.add(deskModel);
+    } else if (!renderedChair) {
+      chairModel.position.setFromMatrixPosition(planeMarker.matrix);
+      chairModel.visible = true;
+      scene.add(chairModel);
     }
-    deskModel.position.setFromMatrixPosition(planeMarker.matrix);
-    deskModel.visible = true;
-    scene.add(deskModel);
   }
 }
