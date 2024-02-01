@@ -28,6 +28,7 @@ export function createScene(renderer: WebGLRenderer) {
 
   const Shape = createShape();
   scene.add(Shape);
+  scene.add(new AxesHelper(3));
 
   renderer.setAnimationLoop((timestamp: number, frame?: XRFrame) => {
       Shape.rotation.y += 0.01;
