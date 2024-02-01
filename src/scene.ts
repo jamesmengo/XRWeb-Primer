@@ -16,14 +16,27 @@ import {
 } from "three";
 
 export function createScene(renderer: WebGLRenderer) {
-  let bookshelfModel: Object3D;
+  let deskModel: Object3D;
 
   const gltfLoader = new GLTFLoader();
-  gltfLoader.load('../assets/chocolate_beech_bookshelf_free/scene.gltf', (gltf: GLTF) => {
-    bookshelfModel = gltf.scene.children[0];
+  gltfLoader.load('../assets/models/scene.gltf', (gltf: GLTF) => {
+    deskModel = gltf.scene.children[0];
   })
 
+
   const scene = new Scene();
+  const controller = renderer.xr.getController(0);
+  controller.addEventListener("select", () => {
+    if (planeMarker.visible) {
+      const model = deskModel.clone();
+      model.position.setFromMatrixPosition(planeMarker.matrix);
+      model.visible = true
+      scene.add(model);
+    }
+  }
+
+  )
+  scene.add(controller);
 
   const camera = new PerspectiveCamera(
     50,
