@@ -4,6 +4,7 @@ import { handleXRHitTest } from './utils/hitTest';
 
 import {
     AmbientLight,
+    Mesh,
     Object3D,
     PerspectiveCamera,
     Scene,
@@ -35,44 +36,52 @@ export function createScene(renderer: WebGLRenderer) {
 
     // Create controller
     const controller = renderer.xr.getController(0);
-    controller.addEventListener('select', () => {
-        // Check if a deskModel is present in the scene by checking for desk name
-        // If desk is nil, clone the deskModel and add it to the scene
-        if (planeMarker.visible) {
-          const renderedDesk = scene.getObjectByName('desk');
-          if (renderedDesk) {
-              scene.remove(renderedDesk);
-          }
-          deskModel.position.setFromMatrixPosition(planeMarker.matrix);
-          deskModel.visible = true;
-          scene.add(deskModel);
-        }
-    });
+    // call handleSelect on event listener select
+    controller.addEventListener('select', () => handleSelect(planeMarker, deskModel, scene));
     scene.add(controller);
 
     const ambientLight = new AmbientLight(0xffffff);
     scene.add(ambientLight);
 
-    const renderLoop = (timestamp: number, frame?: XRFrame) => {
+    const renderLoop = (time: number, frame?: XRFrame) => {
         if (renderer.xr.isPresenting) {
+          handleFrame(frame, renderer, planeMarker);
             if (frame) {
-                handleXRHitTest(
-                    renderer,
-                    frame,
-                    (hitPoseTransformed: Float32Array) => {
-                        if (hitPoseTransformed) {
-                            planeMarker.visible = true;
-                            planeMarker.matrix.fromArray(hitPoseTransformed);
-                        }
-                    },
-                    () => {
-                        planeMarker.visible = false;
-                    }
-                );
+              handleFrame(frame, renderer, planeMarker);
             }
             renderer.render(scene, camera);
         }
     };
 
     renderer.setAnimationLoop(renderLoop);
+}
+
+function handleFrame(frame: XRFrame | undefined, renderer: WebGLRenderer, planeMarker: Mesh) {
+  if (frame) {
+      handleXRHitTest(
+          renderer,
+          frame,
+          (hitPoseTransformed: Float32Array) => {
+              if (hitPoseTransformed) {
+                  planeMarker.visible = true;
+                  planeMarker.matrix.fromArray(hitPoseTransformed);
+              }
+          },
+          () => {
+              planeMarker.visible = false;
+          }
+      );
+  }
+}
+
+function handleSelect(planeMarker: Object3D, deskModel: Object3D, scene: Scene) {
+  if (planeMarker.visible) {
+    const renderedDesk = scene.getObjectByName('desk');
+    if (renderedDesk) {
+      scene.remove(renderedDesk);
+    }
+    deskModel.position.setFromMatrixPosition(planeMarker.matrix);
+    deskModel.visible = true;
+    scene.add(deskModel);
+  }
 }
