@@ -13,6 +13,7 @@ import {
 
 export function createScene(renderer: WebGLRenderer) {
     let deskModel: Object3D;
+    let chairModel: Object3D;
 
     const scene = new Scene();
     const camera = new PerspectiveCamera();
@@ -21,6 +22,11 @@ export function createScene(renderer: WebGLRenderer) {
     const gltfLoader = new GLTFLoader();
     gltfLoader.load('../assets/models/desk.glb', (gltf: GLTF) => {
         deskModel = gltf.scene.children[0];
+        deskModel.name = 'desk';
+    });
+    gltfLoader.load('../assets/models/chair.glb', (gltf: GLTF) => {
+        chairModel = gltf.scene.children[0];
+        chairModel.name = 'chair';
     });
 
     // Initialize a planeMarker
@@ -30,17 +36,22 @@ export function createScene(renderer: WebGLRenderer) {
     // Create controller
     const controller = renderer.xr.getController(0);
     controller.addEventListener('select', () => {
+        // Check if a deskModel is present in the scene by checking for desk name
+        // If desk is nil, clone the deskModel and add it to the scene
         if (planeMarker.visible) {
-            const model = deskModel.clone();
-            model.position.setFromMatrixPosition(planeMarker.matrix);
-            model.visible = true;
-            scene.add(model);
+          const renderedDesk = scene.getObjectByName('desk');
+          if (renderedDesk) {
+              scene.remove(renderedDesk);
+          }
+          deskModel.position.setFromMatrixPosition(planeMarker.matrix);
+          deskModel.visible = true;
+          scene.add(deskModel);
         }
     });
     scene.add(controller);
 
     const ambientLight = new AmbientLight(0xffffff);
-    scene.add(ambientLight)
+    scene.add(ambientLight);
 
     const renderLoop = (timestamp: number, frame?: XRFrame) => {
         if (renderer.xr.isPresenting) {
