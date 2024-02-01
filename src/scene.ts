@@ -86,6 +86,10 @@ function handleSelect(planeMarker: Object3D, deskModel: Object3D, chairModel: Ob
       chairModel.position.setFromMatrixPosition(planeMarker.matrix);
       chairModel.visible = true;
       scene.add(chairModel);
+    } else {
+      scene.remove(renderedChair);
+      scene.remove(renderedDesk);
+      handleSelect(planeMarker, deskModel, chairModel, scene);
     }
   }
 }
