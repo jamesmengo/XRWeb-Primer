@@ -1,4 +1,4 @@
-/*  
+/*
  * Returns true if navigator has xr with 'immersive-ar' capabilities
  * Returns false otherwise.
  */

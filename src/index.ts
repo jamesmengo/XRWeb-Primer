@@ -10,11 +10,37 @@ import {
 import "./styles.css";
 
 function initializeXRApp() {
-  // TODO: Initialize XR features.
+  // initialize WebGL Renderer
+  const renderer = new WebGLRenderer({ antialias: true, alpha: true });
+  renderer.setSize(innerWidth, innerHeight);
+  renderer.setPixelRatio(window.devicePixelRatio)
+
+  // enable XR on the renderer
+  renderer.xr.enabled = true;
+
+  // add the renderer to the DOM
+  document.body.appendChild(renderer.domElement);
+
+  // create the AR button element
+  const xrButton = ARButton.createButton(renderer, { requiredFeatures: ["hit-test"] });
+
+  // add AR button to the DOM
+  document.body.appendChild(xrButton);
+
+  // create the scene
+  createScene(renderer);
+
+  // Display welcome message
+  displayIntroductionMessage();
 };
 
 async function start() {
-  // TODO: Check for WebXR AR support, and start the app if WebXR is supported.
+  // Check for WebXR AR support, and start the app if WebXR is supported.
+  if (!await browserHasImmersiveArCompatibility()) {
+    return displayUnsupportedBrowserMessage();
+  }
+
+  initializeXRApp();
 }
 
 start();
