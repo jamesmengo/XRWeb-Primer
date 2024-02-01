@@ -16,6 +16,13 @@ import {
 } from "three";
 
 export function createScene(renderer: WebGLRenderer) {
+  let bookshelfModel: Object3D;
+
+  const gltfLoader = new GLTFLoader();
+  gltfLoader.load('../assets/chocolate_beech_bookshelf_free/scene.gltf', (gltf: GLTF) => {
+    bookshelfModel = gltf.scene.children[0];
+  })
+
   const scene = new Scene();
 
   const camera = new PerspectiveCamera(
